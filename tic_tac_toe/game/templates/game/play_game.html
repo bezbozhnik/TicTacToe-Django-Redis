@@ -39,7 +39,7 @@
                     "X-CSRFToken": "{{ csrf_token }}",
                 },
                 type: "POST",
-                url: "/game/",
+                url: "/game/{{ request.user.pk }}/",
                 data: { 'position': position },
                 cache: true, // Используем кэширование браузера
                 success: function(response) {
@@ -56,7 +56,7 @@
                     console.log(error);
                 }
             });
-        }, 500); // Задержка в 500 миллисекунд (полсекунды)
+        }, 100); // Задержка в 500 миллисекунд (полсекунды)
     });
 });
 

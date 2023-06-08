@@ -1,0 +1,20 @@
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+<div>
+    <form method="post">
+        {% csrf_token %}
+        {{form.as_p}}
+        <input type="submit" value="Зарегистрироваться">
+    </form>
+</div>
+<div>
+    <form method="post">
+        {% csrf_token %}
+        <button name="login">Войти в аккаунт</button>
+    </form>
+</div>
