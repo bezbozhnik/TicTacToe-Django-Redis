@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>Крестики-нолики</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         table {
             border-collapse: collapse;
@@ -24,67 +23,78 @@
             border: none;
             background-color: inherit;
         }
+
     </style>
     <script>
-  $(document).ready(function() {
-    $("table").on("click", "button", function(e) {
-        e.preventDefault();
-        var position = $(this).val();
-        var button = $(this);
+        const roomName = {{ pk }};
+        const gameSocket = new WebSocket(
+            'ws://' + window.location.host + '/ws/game/' + roomName + '/'
+        );
 
-        // Добавляем задержку в 500 миллисекунд (полсекунды)
-        setTimeout(function() {
-            $.ajax({
-                headers: {
-                    "X-CSRFToken": "{{ csrf_token }}",
-                },
-                type: "POST",
-                url: "/game/{{ request.user.pk }}/",
-                data: { 'position': position },
-                cache: true, // Используем кэширование браузера
-                success: function(response) {
-                    // Заменить содержимое существующей таблицы
-                    $("#game-board").html(response.board_html);
+        gameSocket.onmessage = function (e) {
+          const data = JSON.parse(e.data);
+          const board = data.board;
 
-                    if (response.winner) {
-                        $("#winner").text("Победитель: " + response.winner);
-                    } else {
-                        $("button[value='" + position + "']").text(response.board[position]);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.log(error);
-                }
-            });
-        }, 100); // Задержка в 500 миллисекунд (полсекунды)
-    });
-});
+          // Обновляем значения кнопок на основе позиций
+          for (let i = 0; i < board.length; i++) {
+            const button = document.querySelector(`button[value="${i}"]`);
+            button.textContent = board[i];
+          }
+        };
+
+        gameSocket.onclose = function (e) {
+            console.error('WebSocket closed unexpectedly');
+        };
+
+        // Функция для отправки сообщений на сервер через веб-сокет
+        function sendPosition(position) {
+            const message = {
+                'position': position
+            };
+            gameSocket.send(JSON.stringify(message));
+        }
 
     </script>
 </head>
+
 <body>
-    <div id="game-board">
-        <h1>Крестики-нолики</h1>
-        <form method="post">
-            {% csrf_token %}
-            <table>
-                <tr>
-                    <td><button value="0" name="position">{{ board.0 }}</button></td>
-                    <td><button value="1" name="position">{{ board.1 }}</button></td>
-                    <td><button value="2" name="position">{{ board.2 }}</button></td>
-                </tr>
-                <tr>
-                    <td><button value="3" name="position">{{ board.3 }}</button></td>
-                    <td><button value="4" name="position">{{ board.4 }}</button></td>
-                    <td><button value="5" name="position">{{ board.5 }}</button></td>
-                </tr>
-                <tr>
-                    <td><button value="6" name="position">{{ board.6 }}</button></td>
-                    <td><button value="7" name="position">{{ board.7 }}</button></td>
-                    <td><button value="8" name="position">{{ board.8 }}</button></td>
-                </tr>
-            </table>
-        </form>
-    </div>
-    <div id="winner"></div></body>
+<div id="game-board">
+    <h1>Крестики-нолики</h1>
+    <table>
+        <tr>
+            <td>
+                <button value="0" name="position" onclick="sendPosition(0)">{{ board.0 }}</button>
+            </td>
+            <td>
+                <button value="1" name="position" onclick="sendPosition(1)">{{ board.1 }}</button>
+            </td>
+            <td>
+                <button value="2" name="position" onclick="sendPosition(2)">{{ board.2 }}</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button value="3" name="position" onclick="sendPosition(3)">{{ board.3 }}</button>
+            </td>
+            <td>
+                <button value="4" name="position" onclick="sendPosition(4)">{{ board.4 }}</button>
+            </td>
+            <td>
+                <button value="5" name="position" onclick="sendPosition(5)">{{ board.5 }}</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button value="6" name="position" onclick="sendPosition(6)">{{ board.6 }}</button>
+            </td>
+            <td>
+                <button value="7" name="position" onclick="sendPosition(7)">{{ board.7 }}</button>
+            </td>
+            <td>
+                <button value="8" name="position" onclick="sendPosition(8)">{{ board.8 }}</button>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
 </html>

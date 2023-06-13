@@ -1,8 +1,10 @@
 from django.db import models
+
+
 class Game(models.Model):
-    board = models.CharField(max_length=9)
-    current_player = models.CharField(max_length=1)
-    is_win = models.BooleanField(default=False)
+    board = models.CharField(max_length=9, default=' ' * 9)
+    current = models.CharField(max_length=1, default='X')
+
     def check_win(self):
         board = self.board
         for i in range(0, 9, 3):
@@ -17,4 +19,3 @@ class Game(models.Model):
             return True
 
         return False
-
